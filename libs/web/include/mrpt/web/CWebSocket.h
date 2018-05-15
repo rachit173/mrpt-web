@@ -1,4 +1,6 @@
-
+#include <iostream>
+#include <string>
+#include <boost/beast.hpp>
 #pragma once
 
 class CWebSocketServer
