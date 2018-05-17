@@ -16,6 +16,9 @@ find_package(MRPT REQUIRED)
 
 find_package( Threads )
 
+hunter_add_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
+
 hunter_add_package(libjson-rpc-cpp)
 find_package(libjson-rpc-cpp CONFIG REQUIRED)
 

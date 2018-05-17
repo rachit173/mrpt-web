@@ -1,5 +1,4 @@
 #pragma once
-
 #include <jsonrpccpp/server/abstractserverconnector.h>
 #include <memory>
 #include <boost/beast/websocket.hpp>
@@ -13,12 +12,6 @@ namespace http = boost::beast::http;            // from <boost/beast/http.hpp>
 namespace websocket = boost::beast::websocket;
 
 
-// Report a failure
-void
-fail(boost::system::error_code ec, char const* what)
-{
-    std::cerr << (std::string(what) + ": " + ec.message() + "\n");
-}
 
 // Adjust settings on the stream
 template<class NextLayer>
