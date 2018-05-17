@@ -1,3 +1,5 @@
+#pragma once
+#include <jsonrpccpp/server/abstractserverconnector.h>
 #include "common/detect_ssl.hpp"
 #include "common/server_certificate.hpp"
 
@@ -14,6 +16,7 @@
 #include <boost/asio/steady_timer.hpp>
 #include <boost/make_unique.hpp>
 #include <boost/config.hpp>
+
 #include <algorithm>
 #include <cstdlib>
 #include <functional>
@@ -1241,3 +1244,99 @@ public:
     }
 };
 
+class CWebSocketAdvanced : public jsonrpc::AbstractServerConnector {
+private:
+
+    std::vector<std::thread> v;
+    ssl::context ctx;
+    std::thread m_thread;
+    tcp::endpoint m_endpoint;
+    int threads_;
+    std::shared_ptr<std::string const> doc_root_;   
+public:
+    boost:: asio::io_context ioc;
+    template <typename T1,typename T2>
+    CWebSocketAdvanced(T1 address, T2 ssl_context_certificate, uint16_t port, std::shared_ptr<std::string const> const& doc_root, int threads) :
+    m_endpoint(
+    {
+        address,
+        port
+    }),
+    doc_root_(doc_root),
+    threads_(threads),
+    ctx(ssl_context_certificate),
+    ioc{threads}
+    {
+        // ioc =boost::asio::io_context{threads_};
+        //This holds the self-signed certificates used by the server
+        load_server_certificate(ctx);
+    }
+    ~CWebSocketAdvanced()
+    {
+        //Capture SIGINT and SIGTERM to perform a clean shutdown 
+        boost::asio::signal_set signals(ioc, SIGINT, SIGTERM);
+        signals.async_wait(
+            [&](boost::system::error_code const&, int)
+            {
+                // Stop the `io_context` . This will cause `run()`
+                // to return immediately, eventually destroying the 
+                // `io_context` and all of the sockets in it.
+                ioc.stop();
+            }
+        );
+        //Block untill all the threads exit
+        for(auto& t : v)
+            t.join();
+    }
+    // /**
+    //  * This method launches the listening loop that will handle client connections.
+    //  * @return true for success, false otherwise.
+    //  */
+
+    bool StartListening() override
+    {
+        // std::cout<<"here"<<std::endl;
+        std::make_shared<listener>(
+                        ioc,
+                        ctx,
+                        m_endpoint,
+                        doc_root_)->run();
+        //  Run the I/O service on requested number of threads
+
+        v.reserve(threads_ - 1);
+        for(auto i = threads_ - 1; i > 0; --i)
+            v.emplace_back(
+            [&]
+            {
+                this->ioc.run();
+            });
+        ioc.run();
+
+    }
+    /**
+     * This method stops the listening loop that will handle client connections.
+     * @return True if successful, false otherwise or if not listening.
+     */    
+    bool StopListening() override
+    {
+        //Capture SIGINT and SIGTERM to perform a clean shutdown 
+        boost::asio::signal_set signals(ioc, SIGINT, SIGTERM);
+        signals.async_wait(
+            [&](boost::system::error_code const&, int)
+            {
+                // Stop the `io_context` . This will cause `run()`
+                // to return immediately, eventually destroying the 
+                // `io_context` and all of the sockets in it.
+                ioc.stop();
+            }
+        );
+        //Block untill all the threads exit
+        for(auto& t : v)
+            t.join();
+    }
+    bool SendResponse(const std::string& response, void* addInfo) override
+    {
+
+    }
+
+};
