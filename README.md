@@ -22,5 +22,5 @@ cd build/app/mrpt-ws-rpc
 ```
 Example : 
 ```bash
-./mrpt-ws-rpc 127.0.0.1 5050
+./mrpt-ws-rpc 127.0.0.1 5050 . 2
 ```
