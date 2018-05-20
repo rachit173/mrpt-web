@@ -256,16 +256,30 @@ public:
    * This method launches the listening loop that will handle client connections.
    * @return true for success, false otherwise.
    */
+  static std::string GenerateResponse(const std::string &request)
+  {
+      std::string response;
+    //   ProcessRequest(request,response);
+      return response;
+  }
+
   bool StartListening() override
   {
+      auto funcptr = &(this->GenerateResponse);
     std::make_shared<async_listener>(
         ioc,
-        [](const std::string & str)
+        [&](const std::string & str)
         {
-          return str;
+            return this->GenerateResponse(str);
+        //   return st  r;
         },
         m_endpoint
     )->run();
+    // std::make_shared<async_listener>(
+    //     ioc,
+    //     funcptr,
+    //     m_endpoint      
+    // )->run();
     m_thread = std::thread([&ioc = this->ioc]
         {
             ioc.run();

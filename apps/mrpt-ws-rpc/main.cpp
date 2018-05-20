@@ -8,7 +8,9 @@
 #include <functional>
 #include <thread>
 #include <string>
+#include <mutex>
 
+std::mutex mtx;
 class CRPCRawLog : public CRPCRawLogAbstract
 {
 public:
@@ -21,6 +23,13 @@ public:
 
   }
 };
+void function(const std::string& text)
+{
+  mtx.lock();
+  
+
+  mtx.unlock();
+}
 int main(int argc,char* argv[])
 {
   //Check the command line arguments,
