@@ -46,8 +46,11 @@ int main(int argc,char* argv[])
   auto const doc_root = std::make_shared<std::string>(argv[3]);
   auto const threads = std::max<int>(1, std::atoi(argv[4]));
   try{
-    CWebSocketAdvanced server(address , ssl::context::sslv23 , port , doc_root , threads);
+    // CWebSocketAdvanced server(address , ssl::context::sslv23 , port , doc_root , threads);
+    CWebSocketJsonRpcServer server(address, port);
     server.StartListening();
+    getchar();
+    server.StopListening();
   }
   catch(const std::exception& e)
   {

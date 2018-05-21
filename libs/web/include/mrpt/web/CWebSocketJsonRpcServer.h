@@ -1,11 +1,13 @@
 #pragma once
 #include <jsonrpccpp/server/abstractserverconnector.h>
 #include <memory>
+#include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
+#include <boost/asio/buffers_iterator.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/asio/bind_executor.hpp>
 #include <thread>
-
+#include <iostream>
 
 using tcp = boost::asio::ip::tcp;               // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http;            // from <boost/beast/http.hpp>
@@ -78,7 +80,7 @@ public:
     on_accept(boost::system::error_code ec)
     {
         if(ec)
-            return fail(ec, "accept");
+            return fail(ec, "accept session");
 
         // Read a message
         do_read();
@@ -115,8 +117,15 @@ public:
 
         // Echo the message
         ws_.text(ws_.got_text());
+        
+        //Get the request string
+        std::string request_str =  boost::beast::buffers_to_string(buffer_.data());;
+        
+        // Get the reponse string from the handler
+        std::string response_str = m_request(request_str);
+
         ws_.async_write(
-            buffer_.data(),
+            boost::asio::buffer(response_str,response_str.size()),  //convert response string to buffer
             boost::asio::bind_executor(
                 strand_,
                 std::bind(
@@ -239,7 +248,7 @@ public:
   template <typename T>
   CWebSocketJsonRpcServer(T address, uint16_t port) :
   m_endpoint({
-    boost::asio::ip::make_address(address),
+    address,
     port})
   {
   }
@@ -265,12 +274,16 @@ public:
 
   bool StartListening() override
   {
-      auto funcptr = &(this->GenerateResponse);
+    //   auto funcptr = &(this->GenerateResponse);
     std::make_shared<async_listener>(
         ioc,
         [&](const std::string & str)
         {
-            return this->GenerateResponse(str);
+            // this->OnRequest(str,NULL);
+            std::string ret;
+            std::string tp = str;
+            ret = "Hello Sockets!";
+            return ret + tp;
         //   return st  r;
         },
         m_endpoint
@@ -296,6 +309,10 @@ public:
     m_thread.join();
   }
 
+  bool SendResponse(const std::string& response, void* addInfo) override
+  {
+      return true;
+  }
 private:
   boost::asio::io_context ioc;
   std::thread m_thread;
