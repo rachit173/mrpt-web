@@ -2,7 +2,7 @@
 
 #include <CRPCRawLogAbstract.h>
 #include <mrpt/web/CWebSocketJsonRpcServer.h>
-#include <mrpt/web/CWebSocketAdvanced.h>
+// #include <mrpt/web/CWebSocketAdvanced.h>
 
 #include <cstdlib>
 #include <functional>

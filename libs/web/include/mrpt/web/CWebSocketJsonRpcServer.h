@@ -1,5 +1,6 @@
 #pragma once
-#include <jsonrpccpp/server/abstractserverconnector.h>
+// #include <jsonrpccpp/server/abstractserverconnector.h>
+#include <mrpt/web/CAbstractServerConnnector.h>  
 #include <memory>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -243,7 +244,7 @@ public:
     }
 };
 
-class CWebSocketJsonRpcServer : public jsonrpc::AbstractServerConnector {
+class CWebSocketJsonRpcServer : public jsonrpc::CAbstractServerConnector {
 public:
   template <typename T>
   CWebSocketJsonRpcServer(T address, uint16_t port) :
@@ -265,10 +266,10 @@ public:
    * This method launches the listening loop that will handle client connections.
    * @return true for success, false otherwise.
    */
-  static std::string GenerateResponse(const std::string &request)
+  std::string GenerateResponse(const std::string &request)
   {
       std::string response;
-    //   ProcessRequest(request,response);
+
       return response;
   }
 
@@ -277,22 +278,14 @@ public:
     //   auto funcptr = &(this->GenerateResponse);
     std::make_shared<async_listener>(
         ioc,
-        [&](const std::string & str)
+        [&](const std::string & req)
         {
-            // this->OnRequest(str,NULL);
-            std::string ret;
-            std::string tp = str;
-            ret = "Hello Sockets!";
-            return ret + tp;
-        //   return st  r;
+            std::string res;
+            this->ProcessRequest(req, res);
+            return res;
         },
         m_endpoint
     )->run();
-    // std::make_shared<async_listener>(
-    //     ioc,
-    //     funcptr,
-    //     m_endpoint      
-    // )->run();
     m_thread = std::thread([&ioc = this->ioc]
         {
             ioc.run();
@@ -309,10 +302,10 @@ public:
     m_thread.join();
   }
 
-  bool SendResponse(const std::string& response, void* addInfo) override
-  {
-      return true;
-  }
+//   bool SendResponse(const std::string& response, void* addInfo) override
+//   {
+//       return true;
+//   }
 private:
   boost::asio::io_context ioc;
   std::thread m_thread;

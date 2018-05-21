@@ -1,5 +1,6 @@
 #pragma once
-#include <jsonrpccpp/server/abstractserverconnector.h>
+// #include <jsonrpccpp/server/abstractserverconnector.h>
+#include <mrpt/web/CAbstractServerConnnector.h>  
 #include "common/detect_ssl.hpp"
 #include "common/server_certificate.hpp"
 
@@ -1244,7 +1245,7 @@ public:
     }
 };
 
-class CWebSocketAdvanced : public jsonrpc::AbstractServerConnector {
+class CWebSocketAdvanced : public jsonrpc::CAbstractServerConnector {
 private:
 
     std::vector<std::thread> v;
