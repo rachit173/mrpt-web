@@ -1,3 +1,4 @@
+#pragma once
 #include <cstdlib>
 #include <boost/beast/websocket.hpp>
 // Report a failure

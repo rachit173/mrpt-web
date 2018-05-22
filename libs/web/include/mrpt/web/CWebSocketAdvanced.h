@@ -1,6 +1,6 @@
 #pragma once
 // #include <jsonrpccpp/server/abstractserverconnector.h>
-#include <mrpt/web/CAbstractServerConnnector.h>  
+#include <mrpt/web/CAbstractServerConnector.h>  
 #include "common/detect_ssl.hpp"
 #include "common/server_certificate.hpp"
 

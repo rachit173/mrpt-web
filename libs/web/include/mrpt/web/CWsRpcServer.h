@@ -1,4 +1,4 @@
-
+#pragma once
 #include "CWebSocket.h"
 
 namespace dev

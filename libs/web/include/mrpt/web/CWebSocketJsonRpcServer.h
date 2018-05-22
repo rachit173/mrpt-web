@@ -1,6 +1,6 @@
 #pragma once
 // #include <jsonrpccpp/server/abstractserverconnector.h>
-#include <mrpt/web/CAbstractServerConnnector.h>  
+#include <mrpt/web/CAbstractServerConnector.h>  
 #include <memory>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -121,7 +121,7 @@ public:
         
         //Get the request string
         std::string request_str =  boost::beast::buffers_to_string(buffer_.data());;
-        
+        std::cout << request_str << std::endl;
         // Get the reponse string from the handler
         std::string response_str = m_request(request_str);
 

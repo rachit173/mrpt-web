@@ -1,6 +1,6 @@
 
 
-file(GLOB SRCS "src/*.cpp" "include/mrpt/webs/*.h")
+file(GLOB SRCS "src/*.cpp" "include/mrpt/web/*.h")
 
 add_library(mrpt-web
   SHARED

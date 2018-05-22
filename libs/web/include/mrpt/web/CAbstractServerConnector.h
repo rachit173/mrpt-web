@@ -1,3 +1,4 @@
+#pragma once
 #include <jsonrpccpp/server/iclientconnectionhandler.h>
 #include <string>
 #include <cstdlib>
