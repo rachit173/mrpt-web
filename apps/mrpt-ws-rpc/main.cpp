@@ -1,6 +1,7 @@
 #include <jsonrpccpp/server/abstractserverconnector.h>
 #include <mrpt/web/CWebSocketUtility.hpp>
-#include <mrpt/web/CWebSocketJsonRpcServer.h>
+// #include <mrpt/web/CWebSocketJsonRpcServer.h>
+#include <mrpt/web/CWebSocketAdvanced.h>
 #include <mrpt/web/CModularServer.h>
 
 #include <CRPCRawLogFace.h>
@@ -43,14 +44,7 @@ public:
     return ch;
   }
 };
-class Waste: public jsonrpc::AbstractServerConnector
-{
-  public:
-  bool StartListening() override {}
-  bool StopListening() override {}
-  bool SendResponse(const std::string& response, void* addInfo = NULL) override {}
 
-};
 int main(int argc,char* argv[])
 {
   //Check the command line arguments,
@@ -76,11 +70,9 @@ int main(int argc,char* argv[])
       new CRPCRawLog
     ));
 
-    // CWebSocketAdvanced server(address , ssl::context::sslv23 , port , doc_root , threads);
-    auto server = new CWebSocketJsonRpcServer(address, port);
+    auto server = new CWebSocketAdvanced(address , ssl::context::sslv23 , port , doc_root , threads);
 
     jsonrpcIpcServer->addConnector(server);
-        std::cout<<"Herjbkje"<<std::endl;
 
     server->StartListening();
     getchar();

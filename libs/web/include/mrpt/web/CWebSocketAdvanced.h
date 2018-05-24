@@ -1,8 +1,9 @@
 #pragma once
-// #include <jsonrpccpp/server/abstractserverconnector.h>
-#include <mrpt/web/CAbstractServerConnector.h>  
+
 #include "common/detect_ssl.hpp"
 #include "common/server_certificate.hpp"
+
+#include <mrpt/web/CAbstractServerConnector.h>  
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
@@ -229,12 +230,13 @@ protected:
     boost::asio::strand<
         boost::asio::io_context::executor_type> strand_;
     boost::asio::steady_timer timer_;
-
+    std::function<std::string(const std::string &str)> m_request;
 public:
     // Construct the session
     explicit
-    websocket_session(boost::asio::io_context& ioc)
-        : strand_(ioc.get_executor())
+    websocket_session(std::function<std::string(const std::string &str)> request, boost::asio::io_context& ioc)
+        : m_request(request)
+        , strand_(ioc.get_executor())
         , timer_(ioc,
             (std::chrono::steady_clock::time_point::max)())
     {
@@ -417,8 +419,11 @@ public:
 
         // Echo the message
         derived().ws().text(derived().ws().got_text());
+        std::string request_str = boost::beast::buffers_to_string(buffer_.data());
+        std::string response_str = m_request(request_str);
+        
         derived().ws().async_write(
-            buffer_.data(),
+            boost::asio::buffer(response_str, response_str.size()),
             boost::asio::bind_executor(
                 strand_,
                 std::bind(
@@ -461,8 +466,9 @@ class plain_websocket_session
 public:
     // Create the session
     explicit
-    plain_websocket_session(tcp::socket socket)
+    plain_websocket_session(std::function<std::string(const std::string &str)> request,tcp::socket socket)
         : websocket_session<plain_websocket_session>(
+            request,
             socket.get_executor().context())
         , ws_(std::move(socket))
     {
@@ -537,8 +543,8 @@ class ssl_websocket_session
 public:
     // Create the http_session
     explicit
-    ssl_websocket_session(boost::beast::ssl_stream<tcp::socket> stream)
-        : websocket_session<ssl_websocket_session>(
+    ssl_websocket_session(std::function<std::string(const std::string &str)> request,boost::beast::ssl_stream<tcp::socket> stream)
+        : websocket_session<ssl_websocket_session>(request,
             stream.get_executor().context())
         , ws_(std::move(stream))
         , strand_(ws_.get_executor())
@@ -613,21 +619,21 @@ public:
 
 template<class Body, class Allocator>
 void
-make_websocket_session(
+make_websocket_session(std::function<std::string(const std::string &str)> request,    
     tcp::socket socket,
     http::request<Body, http::basic_fields<Allocator>> req)
 {
-    std::make_shared<plain_websocket_session>(
+    std::make_shared<plain_websocket_session>(request,
         std::move(socket))->run(std::move(req));
 }
 
 template<class Body, class Allocator>
 void
-make_websocket_session(
+make_websocket_session(std::function<std::string(const std::string &str)> request,
     boost::beast::ssl_stream<tcp::socket> stream,
     http::request<Body, http::basic_fields<Allocator>> req)
 {
-    std::make_shared<ssl_websocket_session>(
+    std::make_shared<ssl_websocket_session>(request,
         std::move(stream))->run(std::move(req));
 }
 
@@ -747,16 +753,19 @@ class http_session
 protected:
     boost::asio::steady_timer timer_;
     boost::asio::strand<
-        boost::asio::io_context::executor_type> strand_;
+    boost::asio::io_context::executor_type> strand_;
     boost::beast::flat_buffer buffer_;
+    std::function<std::string(const std::string &str)> m_request;
 
 public:
     // Construct the session
     http_session(
+        std::function<std::string(const std::string &str)> request,
         boost::asio::io_context& ioc,
         boost::beast::flat_buffer buffer,
         std::shared_ptr<std::string const> const& doc_root)
-        : doc_root_(doc_root)
+        : m_request(request)
+        , doc_root_(doc_root)
         , queue_(*this)
         , timer_(ioc,
             (std::chrono::steady_clock::time_point::max)())
@@ -828,6 +837,7 @@ public:
         {
             // Transfer the stream to a new WebSocket session
             return make_websocket_session(
+                m_request,
                 derived().release_stream(),
                 std::move(req_));
         }
@@ -879,9 +889,11 @@ public:
     // Create the http_session
     plain_http_session(
         tcp::socket socket,
+        std::function<std::string(const std::string &str)> request,
         boost::beast::flat_buffer buffer,
         std::shared_ptr<std::string const> const& doc_root)
         : http_session<plain_http_session>(
+            request,
             socket.get_executor().context(),
             std::move(buffer),
             doc_root)
@@ -959,10 +971,12 @@ public:
     // Create the http_session
     ssl_http_session(
         tcp::socket socket,
+        std::function<std::string(const std::string &str)> request,
         ssl::context& ctx,
         boost::beast::flat_buffer buffer,
         std::shared_ptr<std::string const> const& doc_root)
         : http_session<ssl_http_session>(
+            request,
             socket.get_executor().context(),
             std::move(buffer),
             doc_root)
@@ -1093,14 +1107,17 @@ class detect_session : public std::enable_shared_from_this<detect_session>
         boost::asio::io_context::executor_type> strand_;
     std::shared_ptr<std::string const> doc_root_;
     boost::beast::flat_buffer buffer_;
+    std::function<std::string(const std::string &str)> m_request;
 
 public:
     explicit
     detect_session(
         tcp::socket socket,
+        std::function<std::string(const std::string &str)> request,
         ssl::context& ctx,
         std::shared_ptr<std::string const> const& doc_root)
         : socket_(std::move(socket))
+        , m_request(request)
         , ctx_(ctx)
         , strand_(socket_.get_executor())
         , doc_root_(doc_root)
@@ -1135,6 +1152,7 @@ public:
             // Launch SSL session
             std::make_shared<ssl_http_session>(
                 std::move(socket_),
+                m_request,
                 ctx_,
                 std::move(buffer_),
                 doc_root_)->run();
@@ -1144,6 +1162,7 @@ public:
         // Launch plain session
         std::make_shared<plain_http_session>(
             std::move(socket_),
+            m_request,
             std::move(buffer_),
             doc_root_)->run();
     }
@@ -1156,14 +1175,16 @@ class listener : public std::enable_shared_from_this<listener>
     tcp::acceptor acceptor_;
     tcp::socket socket_;
     std::shared_ptr<std::string const> doc_root_;
-
+    std::function<std::string(const std::string &)> m_request;
 public:
     listener(
         boost::asio::io_context& ioc,
+        std::function<std::string(const std::string &)> request,
         ssl::context& ctx,
         tcp::endpoint endpoint,
         std::shared_ptr<std::string const> const& doc_root)
         : ctx_(ctx)
+        , m_request(request)
         , acceptor_(ioc)
         , socket_(ioc)
         , doc_root_(doc_root)
@@ -1236,6 +1257,7 @@ public:
             // Create the detector http_session and run it
             std::make_shared<detect_session>(
                 std::move(socket_),
+                m_request,
                 ctx_,
                 doc_root_)->run();
         }
@@ -1247,13 +1269,13 @@ public:
 
 class CWebSocketAdvanced : public jsonrpc::CAbstractServerConnector {
 private:
-
     std::vector<std::thread> v;
     ssl::context ctx;
     std::thread m_thread;
     tcp::endpoint m_endpoint;
     int threads_;
     std::shared_ptr<std::string const> doc_root_;   
+
 public:
     boost:: asio::io_context ioc;
     template <typename T1,typename T2>
@@ -1268,7 +1290,6 @@ public:
     ctx(ssl_context_certificate),
     ioc{threads}
     {
-        // ioc =boost::asio::io_context{threads_};
         //This holds the self-signed certificates used by the server
         load_server_certificate(ctx);
     }
@@ -1289,16 +1310,22 @@ public:
         for(auto& t : v)
             t.join();
     }
-    // /**
-    //  * This method launches the listening loop that will handle client connections.
-    //  * @return true for success, false otherwise.
-    //  */
+    /**
+     * This method launches the listening loop that will handle client connections.
+     * @return true for success, false otherwise.
+     */
 
     bool StartListening() override
     {
         // std::cout<<"here"<<std::endl;
         std::make_shared<listener>(
                         ioc,
+                        [&](const std::string & req)
+                        {
+                            std::string res;
+                            this->ProcessRequest( req, res);
+                            return res;
+                        },
                         ctx,
                         m_endpoint,
                         doc_root_)->run();
@@ -1335,9 +1362,5 @@ public:
         for(auto& t : v)
             t.join();
     }
-    bool SendResponse(const std::string& response, void* addInfo) override
-    {
-
-    }
-
+    // bool SendResponse(const std::string& response, void* addInfo) override {}
 };

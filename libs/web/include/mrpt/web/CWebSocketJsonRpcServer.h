@@ -1,6 +1,7 @@
 #pragma once
-// #include <jsonrpccpp/server/abstractserverconnector.h>
+
 #include <mrpt/web/CAbstractServerConnector.h>  
+
 #include <memory>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -120,7 +121,7 @@ public:
         ws_.text(ws_.got_text());
         
         //Get the request string
-        std::string request_str =  boost::beast::buffers_to_string(buffer_.data());;
+        std::string request_str =  boost::beast::buffers_to_string(buffer_.data());
         std::cout << request_str << std::endl;
         // Get the reponse string from the handler
         std::string response_str = m_request(request_str);
@@ -262,20 +263,13 @@ public:
         m_thread.join();
       }
   }
-  /**
-   * This method launches the listening loop that will handle client connections.
-   * @return true for success, false otherwise.
-   */
-  std::string GenerateResponse(const std::string &request)
-  {
-      std::string response;
 
-      return response;
-  }
-
+/**
+ * This method launches the listening loop that will handle client connections.
+ * @return true for success, false otherwise.
+ */
   bool StartListening() override
   {
-    //   auto funcptr = &(this->GenerateResponse);
     std::make_shared<async_listener>(
         ioc,
         [&](const std::string & req)
@@ -302,10 +296,6 @@ public:
     m_thread.join();
   }
 
-//   bool SendResponse(const std::string& response, void* addInfo) override
-//   {
-//       return true;
-//   }
 private:
   boost::asio::io_context ioc;
   std::thread m_thread;
