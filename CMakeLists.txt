@@ -24,6 +24,7 @@ find_package(libjson-rpc-cpp CONFIG REQUIRED)
 
 hunter_add_package(Boost COMPONENTS system)
 find_package(Boost CONFIG REQUIRED system)
+include_directories(${Boost_INCLUDE_DIRS})
 
 find_program(JSON_RPC_STUB jsonrpcstub
 HINT "${LIBJSON-RPC-CPP_ROOT}/bin/")
