@@ -1362,5 +1362,4 @@ public:
         for(auto& t : v)
             t.join();
     }
-    // bool SendResponse(const std::string& response, void* addInfo) override {}
 };

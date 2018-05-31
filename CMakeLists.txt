@@ -12,7 +12,7 @@ PROJECT(mrpt-web)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 set (CMAKE_CXX_STANDARD 14)  # Require C++14
 
-find_package(MRPT REQUIRED)
+find_package(MRPT REQUIRED core poses rtti slam )
 
 find_package( Threads )
 

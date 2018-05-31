@@ -20,7 +20,8 @@ mrpt-web
 libjson-rpc-cpp::server
 Boost::system
 OpenSSL::SSL
-OpenSSL::Crypto)
+OpenSSL::Crypto
+${MRPT_LIBS})
 
 include_directories(${RPC_SPEC_INCLUDE_DIR})
 

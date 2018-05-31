@@ -1,6 +1,18 @@
 #include <jsonrpccpp/server/abstractserverconnector.h>
+
+#include <mrpt/poses/CPoint2D.h>
+#include <mrpt/poses/CPose3DQuat.h>
+#include <mrpt/poses/CPose3D.h>
+#include <mrpt/poses/CPose2DInterpolator.h>
+#include <mrpt/poses/CPose3DPDFParticles.h>
+// #include <mrpt/poses/CPose3dInterpolator.h>
+#include <mrpt/poses/CPose3DPDFGaussian.h>
+#include <mrpt/poses/CPoint2DPDFGaussian.h>
+#include <mrpt/poses/CPose3DPDFSOG.h>
+#include <mrpt/poses/CPointPDFSOG.h>
+#include <mrpt/poses/CPoses3DSequence.h>
+#include <mrpt/math/lightweight_geom_data.h>
 #include <mrpt/web/CWebSocketUtility.hpp>
-// #include <mrpt/web/CWebSocketJsonRpcServer.h>
 #include <mrpt/web/CWebSocketAdvanced.h>
 #include <mrpt/web/CModularServer.h>
 
@@ -13,10 +25,12 @@
 #include <mutex>
 #include <memory>
 
+using namespace mrpt::poses;
+using namespace mrpt::math;
+
 class CRPCRawLog : public CRPCRawLogAbstract
 {
 public:
-  // CRPCRawLog(jsonrpc::AbstractServerConnector &w):CRPCRawLogAbstract(w){}
   virtual RPCModules implementedModules() const override
   {
     return RPCModules{RPCModule{"CRPCRawLog","1.0"}};
@@ -40,8 +54,17 @@ public:
   }
   Json::Value Playlist_GetItems() override
   {
-    Json::Value ch;
-    return ch;
+    CPoses3DSequence seq;
+    CPose3D ps;
+    seq.appendPose(ps);
+    // CPose3DPDFSOG particles(5);
+    // CPose3DPDFParticles particles(5);
+    // CPose3DPDFGaussian ps;
+    // CPose2DInterpolator path;
+    // TPose2D t;
+    // path.insert(1,t);
+    auto jsonv = seq.serializeTo<Json::Value>();
+    return jsonv;
   }
 };
 
