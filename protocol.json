@@ -1,0 +1,36 @@
+// ROS Bridge protocol v2
+{
+    "op": "Example",
+    "id": "Fred"
+}
+//ROS operations 
+// advertise
+// unadvertise
+// subscribe
+// unsubscribe
+// service_response
+
+//Data Encoding 
+//Fragmentation
+//PNG compression
+
+{
+    "op" : "advertise",
+    "id" : <string>,
+    "topic" : <string>,
+    "type" : <string>
+}
+{
+    "op" : "publish",
+    "id" : <sttring>,
+    "topic" : <string>,
+    "msg" : <json>
+}
+{
+    "op" : "subscribe",
+    "id" : <string>,
+    "topic" : <string>,
+    "type" : <string>,
+    "throttle_rate" : <int>,
+    "queue_length"
+}
