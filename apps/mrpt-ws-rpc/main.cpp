@@ -54,16 +54,17 @@ public:
   }
   Json::Value Playlist_GetItems() override
   {
-    CPoses3DSequence seq;
-    CPose3D ps;
-    seq.appendPose(ps);
+    // CPoses3DSequence seq;
+    // CPose3D ps;
+    // seq.appendPose(ps);
     // CPose3DPDFSOG particles(5);
     // CPose3DPDFParticles particles(5);
     // CPose3DPDFGaussian ps;
     // CPose2DInterpolator path;
     // TPose2D t;
     // path.insert(1,t);
-    auto jsonv = seq.serializeTo<Json::Value>();
+    CPoint2D pt;
+    auto jsonv = pt.serializeTo<Json::Value>();
     return jsonv;
   }
 };
