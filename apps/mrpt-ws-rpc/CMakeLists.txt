@@ -1,17 +1,28 @@
+# jsonrpcstub modified for mrpt-web
+macro(jsonrpcstub_create EXECUTABLE SPEC SERVERNAME SERVERDIR SERVERFILENAME)
+	add_custom_target(${SPEC})
+	add_custom_command(
+		TARGET ${SPEC}
+		POST_BUILD
+		DEPENDS "{CMAKE_CURRENT_SOURCE_DIR}/${SPEC}"
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		COMMAND ${CMAKE_COMMAND} -DSPEC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/${SPEC}" -DSOURCE_DIR="${CMAKE_SOURCE_DIR}"
+		-DSERVER_DIR="${SERVERDIR}"
+		-DSERVER_NAME=${SERVERNAME}
+		-DSERVER_FILENAME=${SERVERFILENAME}
+		-DJSON_RPC_STUB="${JSON_RPC_STUB}"
+		-P "${CMAKE_CURRENT_SOURCE_DIR}/jsonrpcstub.cmake"
+	)
+	add_dependencies(${EXECUTABLE} ${SPEC})
+endmacro()
 
 file(GLOB SRCS "*.cpp" "*.h")
 
-set(RPC_SPEC_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/mrpt-ws-rpc_spec/include)
-
 set(RAWLOG_SPEC_CLASSNAME CRPCRawLog)
-set(RAWLOG_SPEC_OUTPUT ${RPC_SPEC_INCLUDE_DIR}/${RAWLOG_SPEC_CLASSNAME}Abstract.h)
-set(RAWLOG_SPEC ${CMAKE_CURRENT_SOURCE_DIR}/${RAWLOG_SPEC_CLASSNAME}.spec.json)
 
 add_executable(mrpt-ws-rpc
 	${SRCS}
-	${RAWLOG_SPEC_OUTPUT}
 )
-
 
 target_link_libraries(mrpt-ws-rpc
 PUBLIC
@@ -23,9 +34,4 @@ OpenSSL::SSL
 OpenSSL::Crypto
 ${MRPT_LIBS})
 
-include_directories(${RPC_SPEC_INCLUDE_DIR})
-
-add_custom_command(
-	OUTPUT ${RAWLOG_SPEC_OUTPUT}
-	COMMAND mkdir -p ${RPC_SPEC_INCLUDE_DIR} && ${JSON_RPC_STUB} ${RAWLOG_SPEC} --cpp-server-file=${RAWLOG_SPEC_OUTPUT} --cpp-server=${RAWLOG_SPEC_CLASSNAME}Abstract
-)
+jsonrpcstub_create(mrpt-ws-rpc CRPCRawLog.spec.json ${RAWLOG_SPEC_CLASSNAME}Abstract ${CMAKE_CURRENT_SOURCE_DIR} ${RAWLOG_SPEC_CLASSNAME}Face)

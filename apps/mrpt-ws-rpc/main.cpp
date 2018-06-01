@@ -16,7 +16,7 @@
 #include <mrpt/web/CWebSocketAdvanced.h>
 #include <mrpt/web/CModularServer.h>
 
-#include <CRPCRawLogFace.h>
+#include "CRPCRawLogFace.h"
 
 #include <cstdlib>
 #include <functional>

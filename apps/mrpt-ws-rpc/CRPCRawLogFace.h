@@ -5,13 +5,11 @@
 #ifndef JSONRPC_CPP_STUB_CRPCRAWLOGABSTRACT_H_
 #define JSONRPC_CPP_STUB_CRPCRAWLOGABSTRACT_H_
 
-#include <jsonrpccpp/server.h>
 #include <mrpt/web/CModularServer.h>
 
 class CRPCRawLogAbstract : public ServerInterface<CRPCRawLogAbstract>
 {
     public:
-        // CRPCRawLogAbstract(jsonrpc::AbstractServerConnector &conn, jsonrpc::serverVersion_t type = jsonrpc::JSONRPC_SERVER_V2) : jsonrpc::AbstractServer<CRPCRawLogAbstract>(conn, type)
         CRPCRawLogAbstract()
         {
             this->bindAndAddMethod(jsonrpc::Procedure("Playlist.GetPlaylists", jsonrpc::PARAMS_BY_POSITION, jsonrpc::JSON_ARRAY,  NULL), &CRPCRawLogAbstract::Playlist_GetPlaylistsI);
