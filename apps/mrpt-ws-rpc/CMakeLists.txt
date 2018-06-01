@@ -19,6 +19,7 @@ endmacro()
 file(GLOB SRCS "*.cpp" "*.h")
 
 set(RAWLOG_SPEC_CLASSNAME CRPCRawLog)
+set(PUBSUB_SPEC_CLASSNAME CRPCPubSub)
 
 add_executable(mrpt-ws-rpc
 	${SRCS}
@@ -34,4 +35,12 @@ OpenSSL::SSL
 OpenSSL::Crypto
 ${MRPT_LIBS})
 
-jsonrpcstub_create(mrpt-ws-rpc CRPCRawLog.spec.json ${RAWLOG_SPEC_CLASSNAME}Abstract ${CMAKE_CURRENT_SOURCE_DIR} ${RAWLOG_SPEC_CLASSNAME}Face)
+jsonrpcstub_create(mrpt-ws-rpc CRPCRawLog.spec.json
+	${RAWLOG_SPEC_CLASSNAME}Abstract
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${RAWLOG_SPEC_CLASSNAME}Face)
+
+jsonrpcstub_create(mrpt-ws-rpc CRPCPubSub.spec.json
+	${PUBSUB_SPEC_CLASSNAME}Abstract
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${PUBSUB_SPEC_CLASSNAME}Face)

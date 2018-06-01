@@ -5,7 +5,6 @@
 #include <mrpt/poses/CPose3D.h>
 #include <mrpt/poses/CPose2DInterpolator.h>
 #include <mrpt/poses/CPose3DPDFParticles.h>
-// #include <mrpt/poses/CPose3dInterpolator.h>
 #include <mrpt/poses/CPose3DPDFGaussian.h>
 #include <mrpt/poses/CPoint2DPDFGaussian.h>
 #include <mrpt/poses/CPose3DPDFSOG.h>
@@ -17,6 +16,7 @@
 #include <mrpt/web/CModularServer.h>
 
 #include "CRPCRawLogFace.h"
+#include "CRPCPubSubFace.h"
 
 #include <cstdlib>
 #include <functional>
@@ -27,6 +27,35 @@
 
 using namespace mrpt::poses;
 using namespace mrpt::math;
+
+class CRPCPubSub : public CRPCPubSubAbstract
+{
+public:
+  virtual RPCModules implementedModules() const override
+  {
+    return RPCModules{RPCModule{"CRPCPubSub", "1.0"}};
+  }
+  Json::Value Publisher_Advertise(const std::string& topic, const std::string& type)
+  {
+
+  }
+  Json::Value Publish(const Json::Value& message, const std::string& topic)
+  {
+
+  }
+  Json::Value Publisher_Unadvertise(const std::string& topic, const std::string& type)
+  {
+
+  }
+  Json::Value Subscriber_subscribe(int queue_length, int throttle_rate, const std::string& topic)
+  {
+    
+  }
+  Json::Value Subscribe_unsubscribe(const std::string& topic)
+  {
+
+  }
+};
 
 class CRPCRawLog : public CRPCRawLogAbstract
 {
@@ -89,10 +118,12 @@ int main(int argc,char* argv[])
     std::unique_ptr<CModularServer<>> jsonrpcIpcServer;
     // Waste w;
     using FullServer = CModularServer<
-      CRPCRawLog   
+      CRPCRawLog,
+      CRPCPubSub
     >;
     jsonrpcIpcServer.reset(new FullServer(
-      new CRPCRawLog
+      new CRPCRawLog,
+      new CRPCPubSub
     ));
 
     auto server = new CWebSocketAdvanced(address , ssl::context::sslv23 , port , doc_root , threads);
