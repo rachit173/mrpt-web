@@ -1,7 +1,25 @@
+// The below has been derived from the beast server examples and the copyright
+// license is pasted below
+//
+// Copyright (c) 2016-2017 Vinnie Falco (vinnie dot falco at gmail dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/boostorg/beast
+//
+
+//------------------------------------------------------------------------------
+//
+// Example: Advanced server, flex (plain + SSL)
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include "common/detect_ssl.hpp"
 #include "common/server_certificate.hpp"
+#include "common/ssl_stream.hpp"
 
 #include <mrpt/web/CAbstractServerConnector.h>  
 
@@ -9,7 +27,6 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/version.hpp>
-#include <boost/beast/experimental/core/ssl_stream.hpp>
 #include <boost/asio/bind_executor.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/signal_set.hpp>
@@ -247,14 +264,14 @@ public:
     void
     do_accept(http::request<Body, http::basic_fields<Allocator>> req)
     {
-        // Set the control callback. This will be called
-        // on every incoming ping, pong, and close frame.
-        derived().ws().control_callback(
-            std::bind(
-                &websocket_session::on_control_callback,
-                this,
-                std::placeholders::_1,
-                std::placeholders::_2));
+        // // Set the control callback. This will be called
+        // // on every incoming ping, pong, and close frame.
+        // derived().ws().control_callback(
+        //     std::bind(
+        //         &websocket_session::on_control_callback,
+        //         this,
+        //         std::placeholders::_1,
+        //         std::placeholders::_2));
 
         // Set the timer
         timer_.expires_after(std::chrono::seconds(15));
@@ -535,7 +552,7 @@ class ssl_websocket_session
     : public websocket_session<ssl_websocket_session>
     , public std::enable_shared_from_this<ssl_websocket_session>
 {
-    websocket::stream<boost::beast::ssl_stream<tcp::socket>> ws_;
+    websocket::stream<ssl_stream<tcp::socket>> ws_;
     boost::asio::strand<
         boost::asio::io_context::executor_type> strand_;
     bool eof_ = false;
@@ -543,7 +560,7 @@ class ssl_websocket_session
 public:
     // Create the http_session
     explicit
-    ssl_websocket_session(std::function<std::string(const std::string &str)> request,boost::beast::ssl_stream<tcp::socket> stream)
+    ssl_websocket_session(std::function<std::string(const std::string &str)> request,ssl_stream<tcp::socket> stream)
         : websocket_session<ssl_websocket_session>(request,
             stream.get_executor().context())
         , ws_(std::move(stream))
@@ -552,7 +569,7 @@ public:
     }
 
     // Called by the base class
-    websocket::stream<boost::beast::ssl_stream<tcp::socket>>&
+    websocket::stream<ssl_stream<tcp::socket>>&
     ws()
     {
         return ws_;
@@ -630,7 +647,7 @@ make_websocket_session(std::function<std::string(const std::string &str)> reques
 template<class Body, class Allocator>
 void
 make_websocket_session(std::function<std::string(const std::string &str)> request,
-    boost::beast::ssl_stream<tcp::socket> stream,
+    ssl_stream<tcp::socket> stream,
     http::request<Body, http::basic_fields<Allocator>> req)
 {
     std::make_shared<ssl_websocket_session>(request,
@@ -962,7 +979,7 @@ class ssl_http_session
     : public http_session<ssl_http_session>
     , public std::enable_shared_from_this<ssl_http_session>
 {
-    boost::beast::ssl_stream<tcp::socket> stream_;
+    ssl_stream<tcp::socket> stream_;
     boost::asio::strand<
         boost::asio::io_context::executor_type> strand_;
     bool eof_ = false;
@@ -986,14 +1003,14 @@ public:
     }
 
     // Called by the base class
-    boost::beast::ssl_stream<tcp::socket>&
+    ssl_stream<tcp::socket>&
     stream()
     {
         return stream_;
     }
 
     // Called by the base class
-    boost::beast::ssl_stream<tcp::socket>
+    ssl_stream<tcp::socket>
     release_stream()
     {
         return std::move(stream_);
