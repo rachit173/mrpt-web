@@ -11,9 +11,11 @@
 #include <mrpt/poses/CPointPDFSOG.h>
 #include <mrpt/poses/CPoses3DSequence.h>
 #include <mrpt/math/lightweight_geom_data.h>
+
 #include <mrpt/web/CWebSocketUtility.hpp>
 #include <mrpt/web/CWebSocketAdvanced.h>
 #include <mrpt/web/CModularServer.h>
+#include <mrpt/web/CSchemeArchive.h>
 
 #include "CRPCRawLogFace.h"
 #include "CRPCPubSubFace.h"
@@ -27,6 +29,7 @@
 
 using namespace mrpt::poses;
 using namespace mrpt::math;
+using namespace mrpt::web;
 
 class CRPCPubSub : public CRPCPubSubAbstract
 {
@@ -35,25 +38,33 @@ public:
   {
     return RPCModules{RPCModule{"CRPCPubSub", "1.0"}};
   }
-  Json::Value Publisher_Advertise(const std::string& topic, const std::string& type)
+  Json::Value Publisher_Advertise(std::string const& topic, std::string const& type) override
   {
-
+    Json::Value ch;
+    return ch;
   }
-  Json::Value Publish(const Json::Value& message, const std::string& topic)
+  Json::Value Publish(const Json::Value& message, const std::string& topic) override
   {
-
+    CPoint2D point;
+    Json::Value jsonv;
+    CSchemeArchive<Json::Value> out;
+    out = point;
+    return out.get();
   }
-  Json::Value Publisher_Unadvertise(const std::string& topic, const std::string& type)
+  Json::Value Publisher_Unadvertise(std::string const& topic, std::string const& type) override
   {
-
+    Json::Value ch;
+    return ch;
   }
-  Json::Value Subscriber_subscribe(int queue_length, int throttle_rate, const std::string& topic)
+  Json::Value Subscriber_subscribe(int queue_length, int throttle_rate, std::string const& topic) override
   {
-    
+        Json::Value ch;
+    return ch;
   }
-  Json::Value Subscribe_unsubscribe(const std::string& topic)
+  Json::Value Subscriber_unsubscribe(std::string const& topic) override
   {
-
+        Json::Value ch;
+    return ch;
   }
 };
 

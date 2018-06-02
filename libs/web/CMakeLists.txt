@@ -9,6 +9,10 @@ add_library(mrpt-web
 
 target_include_directories(mrpt-web PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+target_link_libraries(mrpt-web
+PUBLIC
+${MRPT_LIBS})
+
 install(TARGETS mrpt-web
   RUNTIME DESTINATION lib
   ARCHIVE DESTINATION lib

@@ -16,7 +16,7 @@ class CRPCPubSubAbstract : public ServerInterface<CRPCPubSubAbstract>
             this->bindAndAddMethod(jsonrpc::Procedure("Publish", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_OBJECT, "message",jsonrpc::JSON_OBJECT,"topic",jsonrpc::JSON_STRING, NULL), &CRPCPubSubAbstract::PublishI);
             this->bindAndAddMethod(jsonrpc::Procedure("Publisher.Unadvertise", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_OBJECT, "topic",jsonrpc::JSON_STRING,"type",jsonrpc::JSON_STRING, NULL), &CRPCPubSubAbstract::Publisher_UnadvertiseI);
             this->bindAndAddMethod(jsonrpc::Procedure("Subscriber.subscribe", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_OBJECT, "queue_length",jsonrpc::JSON_INTEGER,"throttle_rate",jsonrpc::JSON_INTEGER,"topic",jsonrpc::JSON_STRING, NULL), &CRPCPubSubAbstract::Subscriber_subscribeI);
-            this->bindAndAddMethod(jsonrpc::Procedure("Subscribe.unsubscribe", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_OBJECT, "topic",jsonrpc::JSON_STRING, NULL), &CRPCPubSubAbstract::Subscribe_unsubscribeI);
+            this->bindAndAddMethod(jsonrpc::Procedure("Subscriber.unsubscribe", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_OBJECT, "topic",jsonrpc::JSON_STRING, NULL), &CRPCPubSubAbstract::Subscriber_unsubscribeI);
         }
 
         inline virtual void Publisher_AdvertiseI(const Json::Value &request, Json::Value &response)
@@ -35,15 +35,15 @@ class CRPCPubSubAbstract : public ServerInterface<CRPCPubSubAbstract>
         {
             response = this->Subscriber_subscribe(request["queue_length"].asInt(), request["throttle_rate"].asInt(), request["topic"].asString());
         }
-        inline virtual void Subscribe_unsubscribeI(const Json::Value &request, Json::Value &response)
+        inline virtual void Subscriber_unsubscribeI(const Json::Value &request, Json::Value &response)
         {
-            response = this->Subscribe_unsubscribe(request["topic"].asString());
+            response = this->Subscriber_unsubscribe(request["topic"].asString());
         }
         virtual Json::Value Publisher_Advertise(const std::string& topic, const std::string& type) = 0;
         virtual Json::Value Publish(const Json::Value& message, const std::string& topic) = 0;
         virtual Json::Value Publisher_Unadvertise(const std::string& topic, const std::string& type) = 0;
         virtual Json::Value Subscriber_subscribe(int queue_length, int throttle_rate, const std::string& topic) = 0;
-        virtual Json::Value Subscribe_unsubscribe(const std::string& topic) = 0;
+        virtual Json::Value Subscriber_unsubscribe(const std::string& topic) = 0;
 };
 
 #endif //JSONRPC_CPP_STUB_CRPCPUBSUBABSTRACT_H_

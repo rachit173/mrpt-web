@@ -3,5 +3,5 @@
     { "name": "Publish", "params": {"topic":"goal", "message":{}}, "returns" : {} },
     { "name": "Publisher.Unadvertise", "params": {"topic":"goal","type":"CPose2D"}, "returns" : {} },
     { "name": "Subscriber.subscribe", "params": {"topic":"goal", "throttle_rate": 50, "queue_length": 100}, "order": [], "returns" : {} },
-    { "name": "Subscribe.unsubscribe", "params": {"topic":"goal"}, "returns" : {} }
+    { "name": "Subscriber.unsubscribe", "params": {"topic":"goal"}, "returns" : {} }
 ]
