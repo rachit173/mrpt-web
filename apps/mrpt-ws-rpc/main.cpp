@@ -47,20 +47,10 @@ public:
   Json::Value Publish(const Json::Value& message, const std::string& topic) override
   {
     CPoint2D point;
-    Json::Value jsonv;
-    CSchemeArchive<Json::Value> out;
-    std::cout<<"Hello"<<std::endl;
-    out << 1;
-    jsonv = 1;
-    std::cout<<"Hello1"<<std::endl;
-    jsonv["p"] = 1;
-    std::cout<<jsonv<<std::endl;
-    out["p"] << 2;
-    std::cout<< out.get()<<std::endl;
-    out << message;
-    out >> point;
+    Json::Value jsonv = message;
+    CSchemeArchive<Json::Value> out(jsonv);
+    out.asSerializableObject(point);
     std::cout<<point.x()<<" "<<point.y()<<std::endl;
-    jsonv["accept"] = true;
     return jsonv;
   }
   Json::Value Publisher_Unadvertise(std::string const& topic, std::string const& type) override
