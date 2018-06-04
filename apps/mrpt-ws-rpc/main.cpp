@@ -26,6 +26,7 @@
 #include <string>
 #include <mutex>
 #include <memory>
+#include <iostream>
 
 using namespace mrpt::poses;
 using namespace mrpt::math;
@@ -48,8 +49,19 @@ public:
     CPoint2D point;
     Json::Value jsonv;
     CSchemeArchive<Json::Value> out;
-    out = point;
-    return out.get();
+    std::cout<<"Hello"<<std::endl;
+    out << 1;
+    jsonv = 1;
+    std::cout<<"Hello1"<<std::endl;
+    jsonv["p"] = 1;
+    std::cout<<jsonv<<std::endl;
+    out["p"] << 2;
+    std::cout<< out.get()<<std::endl;
+    out << message;
+    out >> point;
+    std::cout<<point.x()<<" "<<point.y()<<std::endl;
+    jsonv["accept"] = true;
+    return jsonv;
   }
   Json::Value Publisher_Unadvertise(std::string const& topic, std::string const& type) override
   {
