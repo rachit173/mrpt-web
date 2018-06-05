@@ -13,40 +13,67 @@ class CSchemeArchive : public mrpt::serialization::CSchemeArchiveBase
   public:
     CSchemeArchive(SCHEME_CAPABLE& val):m_val(val) {}
     //Virtual assignment operators
-    virtual mrpt::serialization::CSchemeArchiveBase &operator=(int val) override
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const int32_t val) override
     {
         m_val = val;
         return *this;
     }
-    virtual mrpt::serialization::CSchemeArchiveBase &operator=(float val) override
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const uint32_t val) override
     {
         m_val = val;
         return *this;
     }
-    virtual mrpt::serialization::CSchemeArchiveBase &operator=(double val) override
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const int64_t val) override
     {
         m_val = val;
         return *this;
     }
-    virtual mrpt::serialization::CSchemeArchiveBase &operator=(std::nullptr_t val) override
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const uint64_t val) override
     {
         m_val = val;
         return *this;
     }
-    virtual mrpt::serialization::CSchemeArchiveBase &operator=(std::string val) override
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const float val) override
     {
         m_val = val;
         return *this;
     }
-    virtual mrpt::serialization::CSchemeArchiveBase &operator=(bool val) override
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const double val) override
+    {
+        m_val = val;
+        return *this;
+    }
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const std::nullptr_t val) override
+    {
+        m_val = val;
+        return *this;
+    }
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const std::string val) override
+    {
+        m_val = val;
+        return *this;
+    }
+    virtual mrpt::serialization::CSchemeArchiveBase &operator=(const bool val) override
     {
         m_val = val;
         return *this;
     }
 
-    virtual explicit operator int() const override
+    virtual explicit operator int32_t() const override
     {
         return m_val.asInt();
+    }
+    virtual explicit operator uint32_t() const override
+    {
+        return m_val.asUInt();
+    }
+    virtual explicit operator int64_t() const override
+    {
+        return m_val.asInt64();
+    }
+    virtual explicit operator uint64_t() const override
+    {
+        return m_val.asUInt64();
     }
     virtual explicit operator float() const override
     {
