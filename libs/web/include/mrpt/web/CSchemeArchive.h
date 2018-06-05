@@ -44,23 +44,23 @@ class CSchemeArchive : public mrpt::serialization::CSchemeArchiveBase
         return *this;
     }
 
-    virtual int asInt() override
+    virtual explicit operator int() const override
     {
         return m_val.asInt();
     }
-    virtual float asFloat() override
+    virtual explicit operator float() const override
     {
         return m_val.asFloat();
     }
-    virtual double asDouble() override
+    virtual explicit operator double() const override
     {
         return m_val.asDouble();
     }
-    virtual bool asBool() override
+    virtual explicit operator bool() const override
     {
         return m_val.asBool();
     }
-    virtual std::string asString() override
+    virtual explicit operator std::string() const override
     {
         return m_val.asString();
     }
@@ -78,7 +78,6 @@ class CSchemeArchive : public mrpt::serialization::CSchemeArchiveBase
 
     virtual mrpt::serialization::CSchemeArchiveBase::Ptr operator[](size_t idx) override
     {
-
         return std::make_shared<CSchemeArchive<SCHEME_CAPABLE>>(m_val[(int)idx]);
     }
     virtual mrpt::serialization::CSchemeArchiveBase::Ptr operator[](std::string str) override
