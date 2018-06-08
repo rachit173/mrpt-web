@@ -31,6 +31,7 @@
 using namespace mrpt::poses;
 using namespace mrpt::math;
 using namespace mrpt::web;
+using namespace mrpt::serialization;
 
 class CRPCPubSub : public CRPCPubSubAbstract
 {
@@ -47,10 +48,13 @@ public:
   Json::Value Publish(const Json::Value& message, const std::string& topic) override
   {
     CPoint2D point;
+    CPose3DQuat pose;
     Json::Value jsonv = message;
-    CSchemeArchive<Json::Value> out(jsonv);
+    CSchemeArchiveBase out(std::make_unique<CSchemeArchive<Json::Value> >(jsonv));
     out.asSerializableObject(point);
-    std::cout<<point.x()<<" "<<point.y()<<std::endl;
+    std::cout << point.x() << " " << point.y() << std::endl;
+    CPoint2D pt2;
+    out = pt2;
     return jsonv;
   }
   Json::Value Publisher_Unadvertise(std::string const& topic, std::string const& type) override

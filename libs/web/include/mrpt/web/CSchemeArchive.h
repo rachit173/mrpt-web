@@ -8,7 +8,7 @@
 namespace mrpt::web
 {
 template <typename SCHEME_CAPABLE>
-class CSchemeArchive : public mrpt::serialization::CSchemeArchiveBase
+class CSchemeArchive : public mrpt::serialization::CSchemeArchiveBase_impl
 {
   public:
     CSchemeArchive(SCHEME_CAPABLE& val):m_val(val) {}
@@ -16,47 +16,47 @@ class CSchemeArchive : public mrpt::serialization::CSchemeArchiveBase
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const int32_t val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const uint32_t val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const int64_t val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const uint64_t val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const float val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const double val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const std::nullptr_t val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const std::string val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(const bool val) override
     {
         m_val = val;
-        return *this;
+        return *m_parent;
     }
 
     virtual explicit operator int32_t() const override
@@ -94,29 +94,24 @@ class CSchemeArchive : public mrpt::serialization::CSchemeArchiveBase
 
     virtual mrpt::serialization::CSchemeArchiveBase &operator=(mrpt::serialization::CSerializable& obj) override
     {
-        mrpt::serialization::CSchemeArchiveBase::ReadObject(*this, obj);
-        return *this;
+        ReadObject(*m_parent, obj);
+        return *m_parent;
     }
     virtual void asSerializableObject(mrpt::serialization::CSerializable& obj) override
     {
-        mrpt::serialization::CSchemeArchiveBase::WriteObject(*this, obj);
+        WriteObject(*m_parent, obj);
         return;
     }
 
-    virtual mrpt::serialization::CSchemeArchiveBase::Ptr operator[](size_t idx) override
+    virtual mrpt::serialization::CSchemeArchiveBase operator[](size_t idx) override
     {
-        return std::make_shared<CSchemeArchive<SCHEME_CAPABLE>>(m_val[(int)idx]);
+        return mrpt::serialization::CSchemeArchiveBase(std::make_unique<CSchemeArchive<SCHEME_CAPABLE>>(m_val[(int)idx]));
     }
-    virtual mrpt::serialization::CSchemeArchiveBase::Ptr operator[](std::string str) override
+    virtual mrpt::serialization::CSchemeArchiveBase operator[](std::string str) override
     {  
-        return std::make_shared<CSchemeArchive<SCHEME_CAPABLE>>(m_val[std::string(str)]);
+        return mrpt::serialization::CSchemeArchiveBase(std::make_unique<CSchemeArchive<SCHEME_CAPABLE>>(m_val[std::string(str)]));
     }
 
-    // no longer required
-    SCHEME_CAPABLE get()
-    {
-        return m_val;
-    }
     private:
         SCHEME_CAPABLE& m_val;
 };
