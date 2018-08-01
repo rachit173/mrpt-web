@@ -43,6 +43,7 @@
 #include "CRawlogTreeProcessor.h"
 #include "CFormMotionModel.h"
 #include "CFormRawMap.h"
+#include "scan_animation.h"
 #include "stubs.h"
 
 #include <cstdlib>
@@ -53,6 +54,7 @@
 #include <memory>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
 using namespace mrpt;
 using namespace mrpt::slam;
@@ -106,12 +108,22 @@ struct TInfoPerSensorLabel
 class Stubs : public StubsAbstract
 {
 	public:
-		Stubs():m_loaded_file_name("noname.rawlog")
+		Stubs(vector<string>& file_list_):m_loaded_file_name("noname.rawlog"), m_file_list(file_list_)
 		{
 			m_time_to_load = 0;
 			m_experiment_length = 0;
       m_tree = std::make_shared<CRawlogTreeProcessor>();
 		}
+
+    Json::Value GetRawlogsList(const Json::Value &request)
+    {
+      Json::Value ret;
+      for (int i = 0; i < m_file_list.size(); i++) {
+          ret[i] = m_file_list[i];
+      }
+      return ret;
+    }
+
     Json::Value DrawRandomSamples(const Json::Value &request)
     {
       Json::Value ret;
@@ -177,6 +189,14 @@ class Stubs : public StubsAbstract
       const int index = request.get("index", 0).asInt();
       Json::Value ret;
       ret = m_tree->getTreeDataPoint(index);
+      return ret;
+    }
+    Json::Value GetScanDataFromIndex(const Json::Value &request)
+    {
+      const int index = request.get("index", 0).asInt();
+      Json::Value ret;
+      ret["err"] = "";
+      rebuildMaps(index, rawlog, ret);
       return ret;
     }
     Json::Value GetMapAndPath(const Json::Value &request)
@@ -535,7 +555,8 @@ class Stubs : public StubsAbstract
   // A list of sensor labels (and the times they appear) in the currently loaded
   // rawlog.
   std::map<std::string, TInfoPerSensorLabel> listOfSensorLabels;
-
+  // List of rawlogs
+  vector<string> m_file_list;
 };
 
 int main(int argc,char* argv[])
@@ -552,6 +573,15 @@ int main(int argc,char* argv[])
   auto const address = boost::asio::ip::make_address(argv[1]);
   auto const port = static_cast<unsigned short>(std::atoi(argv[2]));
   try{
+    vector<string> file_list;
+    // get the list of rawlogs
+    ifstream inFile;
+    inFile.open("RawlogsList.txt");
+    string x;
+    while (inFile >> x) {
+      if (x.find(".rawlog") != string::npos)
+        file_list.push_back(x);
+    }
     std::unique_ptr<CModularServer<>> jsonrpcIpcServer;
     using FullServer = CModularServer<Stubs>;
     //Server without ConnectionStore and SubscriberManager
@@ -563,7 +593,7 @@ int main(int argc,char* argv[])
     auto manager = std::make_shared<CPubSubManager<CWebSocketServer>>(server);
 
     jsonrpcIpcServer.reset(new FullServer(
-      new Stubs   // RPC stub for PubSub activity
+      new Stubs(file_list)   // RPC stub for PubSub activity
     ));
 
     jsonrpcIpcServer->addConnector(server);

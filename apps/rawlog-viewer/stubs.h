@@ -9,9 +9,11 @@ class StubsAbstract : public ServerInterface<StubsAbstract>
   public:
   StubsAbstract()
   {
+    this->bindAndAddMethod(mrpt::web::CProcedure("GetRawlogsList", procedure::METHOD), &StubsAbstract::GetRawlogsListI);
     this->bindAndAddMethod(mrpt::web::CProcedure("LoadRawlog", procedure::METHOD), &StubsAbstract::LoadRawlogI);
     this->bindAndAddMethod(mrpt::web::CProcedure("GetRawlogTree", procedure::METHOD), &StubsAbstract::GetRawlogTreeI);
     this->bindAndAddMethod(mrpt::web::CProcedure("GetRawlogDataFromIndex", procedure::METHOD), &StubsAbstract::GetRawlogDataFromIndexI);
+    this->bindAndAddMethod(mrpt::web::CProcedure("GetScanDataFromIndex", procedure::METHOD), &StubsAbstract::GetScanDataFromIndexI);
     this->bindAndAddMethod(mrpt::web::CProcedure("LoadMotionModel", procedure::METHOD), &StubsAbstract::LoadMotionModelI);
     this->bindAndAddMethod(mrpt::web::CProcedure("GetMapAndPath", procedure::METHOD), &StubsAbstract::GetMapAndPathI);
     this->bindAndAddMethod(mrpt::web::CProcedure("GetMapFromRTK", procedure::METHOD), &StubsAbstract::GetMapFromRTKI);
@@ -59,9 +61,20 @@ class StubsAbstract : public ServerInterface<StubsAbstract>
     response = this->DrawRandomSamples(request);
   }
 
+  inline virtual void GetRawlogsListI(const Json::Value &request, Json::Value &response)
+  {
+    response = this->GetRawlogsList(request);
+  }
+
+  inline virtual void GetScanDataFromIndexI(const Json::Value &request, Json::Value &response)
+  {
+    response = this->GetScanDataFromIndex(request);
+  }
+  virtual Json::Value GetRawlogsList(const Json::Value &request) = 0;
   virtual Json::Value LoadRawlog(const Json::Value& request) = 0;
   virtual Json::Value GetRawlogTree(const Json::Value& request) = 0;
   virtual Json::Value GetRawlogDataFromIndex(const Json::Value& request) = 0;
+  virtual Json::Value GetScanDataFromIndex(const Json::Value& request) = 0;
   virtual Json::Value LoadMotionModel(const Json::Value& request) = 0;
   virtual Json::Value GetMapAndPath(const Json::Value &request) = 0;
   virtual Json::Value GetMapFromRTK(const Json::Value &request) = 0;

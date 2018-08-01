@@ -3,6 +3,7 @@ set(LIB_SRC
   main_display_processor.cpp
   CFormMotionModel.cpp
   CFormRawMap.cpp
+  scan_animation.cpp
 )
 
 add_library(lib_rawlog_app ${LIB_SRC})
